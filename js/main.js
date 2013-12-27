@@ -2,14 +2,14 @@
     $(document).ready(function () {
 
 
-        var generatePoints = function (numberOfPoints, angleStep, roughness, totalDistance) {
+        var generatePoints = function (numberOfPoints, angleStep, roughness, totalDistance, layerHeight) {
                 var hDistance = totalDistance/numberOfPoints,
                     maxAngle = roughness * 90,
                     angles = Math.floor(maxAngle / angleStep),
                     steps = [],
                     base = angles * angleStep,
                     coords = [],
-                    _h = 250,
+                    _h = Math.floor( Math.random() * ( layerHeight - 100 ) ),
                     _w = 0;
 
                 coords.push([_w, _h]);
@@ -55,11 +55,11 @@
             rect = new Kinetic.Rect({
                 x: 239,
                 y: 75,
-                width: 100,
-                height: 50,
-                fill: 'green',
+                width: 30,
+                height: 30,
+                fill: 'white',
                 stroke: 'black',
-                strokeWidth: 4
+                strokeWidth: 1
             }),
             circle = new Kinetic.Circle({
                 x: stage.getWidth() / 4,
@@ -70,25 +70,60 @@
                 strokeWidth: 4
             }),
             line = new Kinetic.Line({
-                points: generatePoints(20, 5, 0.45, stage.getWidth()),
+                points: generatePoints(20, 45, 0.9, stage.getWidth(), stage.getHeight()),
                 stroke: 'black',
                 strokeWidth: 4,
 
                 x: 0,
                 y: 50
-            });
-// function (numberOfPoints, angleStep, roughness, totalDistance) {
+            }),
+            timer = null,
+            hVelocity = 0,
+            vVelocity = 0,
+            down = [];
 
-        console.log(generatePoints(20, 5, 0.45, 500))
-        console.log(line);
+
+
         // add the shape to the layer
         // layer.add(rect, circle);
-        // layer.add(rect);
+        layer.add(rect);
         // layer.add(circle);
         // add the layer to the stage
         layer.add(line);
         stage.add(layer);
 
-        console.log(stage, layer);
+        $(document).keydown(function(e) {
+            console.log(e.which);
+            down[e.keyCode] = true;
+        }).keyup(function(e) {
+            if (down[37] && down[38] && down[39]) {
+                alert('oh hai');
+            }
+            down[e.keyCode] = false;
+        });
+
+
+
+        var anim = new Kinetic.Animation(function(frame) {
+            vVelocity += 0.02;
+
+
+            if(down['37']) {
+                hVelocity -= 0.02;
+            }
+
+            if(down['39']) {
+                hVelocity += 0.02;
+            }
+
+            if(down['38']) {
+                vVelocity -= 0.04;
+            }
+            rect.move(hVelocity, vVelocity);
+
+        }, layer);
+
+        anim.start();
+
     });
 }(jQuery));
