@@ -52,36 +52,42 @@
                 height: 500
             }),
             layer = new Kinetic.Layer(),
+            simpleText = new Kinetic.Text({
+                x: stage.getWidth() - 200,
+                y: 0,
+                text: '0',
+                fontSize: 30,
+                fontFamily: 'Arial',
+                fill: 'white',
+                width: 200
+            }),
+
             rect = new Kinetic.Rect({
-                x: 239,
-                y: 75,
+                x: 45,
+                y: 20,
                 width: 30,
                 height: 30,
                 fill: 'white',
                 stroke: 'black',
                 strokeWidth: 1
             }),
-            circle = new Kinetic.Circle({
-                x: stage.getWidth() / 4,
-                y: stage.getHeight() / 4,
-                radius: 70,
-                fill: 'red',
-                stroke: 'black',
-                strokeWidth: 4
-            }),
+
             line = new Kinetic.Line({
                 points: generatePoints(20, 45, 0.9, stage.getWidth(), stage.getHeight()),
                 stroke: 'black',
                 strokeWidth: 4,
-
+                id: 'surface',
                 x: 0,
                 y: 50
             }),
+            writeMessage = function (message) {
+                simpleText.setText(message);
+                layer.batchDraw();
+            },
             timer = null,
             hVelocity = 0,
             vVelocity = 0,
             down = [];
-
 
 
         // add the shape to the layer
@@ -90,17 +96,27 @@
         // layer.add(circle);
         // add the layer to the stage
         layer.add(line);
+        layer.add(simpleText);
+
         stage.add(layer);
 
+
         $(document).keydown(function(e) {
-            console.log(e.which);
+            // console.log(e.which);
             down[e.keyCode] = true;
-        }).keyup(function(e) {
-            if (down[37] && down[38] && down[39]) {
-                alert('oh hai');
+            if(e.keyCode === 32) {
+                if( anim.isRunning()) {
+                    anim.stop();
+                } else {
+                    anim.start();
+                }
+
             }
+        }).keyup(function(e) {
+
             down[e.keyCode] = false;
         });
+
 
 
 
@@ -119,6 +135,55 @@
             if(down['38']) {
                 vVelocity -= 0.04;
             }
+
+
+            var p = rect.getPosition(),
+
+                bottomLeft = { x: p.x -1, y: p.y + rect.getHeight() + 1 },
+                bottomRight = { x: p.x + rect.getWidth() + 1, y: p.y + rect.getHeight() + 1 },
+
+                bottomLeftIntersects = stage.getIntersection(bottomLeft),
+                bottomRightIntersects = stage.getIntersection(bottomRight),
+                shapeLeft = false,
+                shapeRight = false;
+
+
+            if(bottomLeftIntersects !== null) {
+                if(bottomLeftIntersects.shape !== undefined) {
+                    if(bottomLeftIntersects.shape.getId() === 'surface') {
+                        shapeLeft = true;
+                    }
+
+                }
+            }
+
+            if(bottomRightIntersects !== null) {
+                if(bottomRightIntersects.shape !== undefined) {
+                    if(bottomRightIntersects.shape.getId() === 'surface') {
+                        shapeRight = true;
+                    }
+                }
+            }
+
+
+            if(shapeLeft || shapeRight) {
+                if( shapeLeft && shapeRight && vVelocity < 0.5) {
+                    console.log('landed');
+                    alert('landed');
+                    anim.stop();
+                } else {
+                    console.log('crashed');
+                    alert('you crashlanded... derp');
+                    anim.stop();
+                }
+            }
+
+            // if(bottomLeftIntersects.hasOwnProperty('shape')){
+            //     console.log(bottomLeftIntersects);
+            // }
+
+
+            writeMessage('x: ' + Math.floor(p.x) + ' y: ' + Math.floor(p.y) + ' vv: ' + vVelocity);
             rect.move(hVelocity, vVelocity);
 
         }, layer);
