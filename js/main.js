@@ -19,6 +19,9 @@
                     steps.push( base - (i * angleStep) );
                 };
 
+
+
+
                 for (var i = numberOfPoints - 1; i >= 0; i--) {
 
                     // get random angle
@@ -26,9 +29,22 @@
                     var angle = steps[_index];
                     var rad = angle * Math.PI/180;
                     var vDistance = Math.round( Math.tan(rad) * hDistance * 100 ) / 100;
+
+                    console.log('orig', i, vDistance + _h, layerHeight );
+                    while( vDistance + _h > layerHeight - 100 || vDistance + _h < 100) {
+                        //  || vDistance + _h < 100
+                        _index = Math.ceil(Math.random() * steps.length-1);
+                        angle = steps[_index];
+                        rad = angle * Math.PI/180;
+                        vDistance = Math.round( Math.tan(rad) * hDistance * 100 ) / 100;
+                        console.log('recalc', i, vDistance + _h);
+                    }
+
+
                     _h += vDistance;
                     _w += hDistance;
                     var coord = [_w, _h];
+                    console.log(coord);
                     // var coord = {
                     //     'rads': rad,
                     //     'angles': angle,
@@ -38,6 +54,7 @@
                     //     'x': _w
                     // };
                     coords.push(coord);
+
                 };
                 return coords;
                 // console.table(coords);
@@ -73,7 +90,7 @@
             }),
 
             line = new Kinetic.Line({
-                points: generatePoints(20, 45, 0.9, stage.getWidth(), stage.getHeight()),
+                points: generatePoints(20, 12, 0.9, stage.getWidth(), stage.getHeight()),
                 stroke: 'black',
                 strokeWidth: 4,
                 id: 'surface',
